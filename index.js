@@ -1,29 +1,26 @@
 require('colors');
-//const emitter = require('events');
+const EventEmitter = require('events');
+const emitter = new EventEmitter();
+let min = process.argv[2];
+let sec = process.argv[3];
 
-let min = process.argv[2]; //ввод минут
-let sec = process.argv[3]; //ввод секунд
+if (isNaN(sec) || isNaN(min)) {
+    console.log('Incorrect start parameters'.red);
+    return;
+};
 
-//таймер
-function run() {
-
-    if (isNaN(sec) || isNaN(min)) {
-        console.log('Incorrect start parameters'.red);
-        return;
-    };
-
-    sec = sec - 1;
-    console.log('min: ' + `${min}`.green + ': sec: ' + `${sec}`.yellow);
+async function run() {
     if (min == 0 && sec == 0) {
         console.log('The End'.red);
         return;
     };
-    if (sec == 0) {
+    sec = sec - 1;
+    if (sec == -1) {
         min = min - 1;
-        sec = 60;
+        sec = 59;
     };
-
-    setTimeout(run, 1000);
+    emitter.on(sec, function() { console.log('min: ' + `${min}`.green + ': sec: ' + `${sec}`.yellow) });
+    await setTimeout(run, 1000);
+    emitter.emit(sec);
 };
-
 run();
