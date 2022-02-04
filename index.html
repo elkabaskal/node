@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Socket</title>
+    <script src="https://cdn.socket.io/4.2.0/socket.io.min.js" integrity="sha384-PiBR5S00EtOj2Lto9Uu81cmoyZqR57XcOna1oAuVuIEjzj0wpqDVfD0JA9eXlRsj" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div id="yourName"></div>
+    <input id="input" type="text" autofocus>
+    <button id="button">Send</button>
+    <div id="clientList"></div>
+    <div id="messages"></div>
+    <script>
+        const socket = io('localhost:5555');
+        const messageBlock = document.querySelector('#messages');
+        const input = document.querySelector('#input');
+        const button = document.querySelector('#button');
+        const clientList = document.querySelector('#clientList');
+        const yourName = document.querySelector('#yourName');
+
+        let name = prompt("введите имя: ");
+
+        button.addEventListener('click', () => {
+            const data = {
+                message: input.value,
+                name: name,
+            };
+
+            socket.emit('client-msg', data);
+            input.value = '';
+        });
+
+
+        socket.on('connect', () => {
+            socket.emit('user-name', name);
+            yourName.insertAdjacentHTML('afterbegin', `<p>В чате: ${ name } </p>`);
+        });
+
+        socket.on('disconnect', () => {
+            socket.emit('user-name-exit', name);
+        });
+
+        socket.on('recordedUser', (data) => {
+            clientList.insertAdjacentHTML('afterbegin', `<p>В чат вошел: ${ data }</p>`);
+        });
+
+        socket.on('exitUser', (data) => {
+            clientList.insertAdjacentHTML('afterbegin', `<p>Из чата вышел: ${ data }</p>`);
+        });
+
+
+        socket.on('server-msg', (data) => {
+            messageBlock.insertAdjacentHTML('afterbegin', `<div>${ data.name }: ${ data.message }</div>`);
+        });
+    </script>
+</body>
+
+</html>
